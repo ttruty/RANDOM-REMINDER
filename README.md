@@ -94,7 +94,8 @@ Safari for home-screen web apps (see limitations above).
 - `src/app/core/db.service.ts` — IndexedDB storage
 - `src/app/core/reminder-store.service.ts` — profile CRUD + occurrence refresh
 - `src/app/core/notification.service.ts` — permissions, SW registration, foreground polling
-- `src/app/core/voice.service.ts` — original catchphrases + text-to-speech via the Web Speech API
+- `src/app/core/voice.service.ts` — original catchphrases + text-to-speech via the Web Speech API;
+  voice/pitch/speed are user-selectable in Settings and persisted to `localStorage`
 - `src/app/core/install-prompt.service.ts` — captures Chrome's `beforeinstallprompt` event
 - `src/app/install-prompt-modal` — the "Install as app?" modal shown on Android
 - `src/sw.js` — service worker; **mirrors** the scheduler/DB logic in plain JS

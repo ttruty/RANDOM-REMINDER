@@ -41,6 +41,61 @@
     </ion-item>
   </ion-list>
 
+  <h2 class="section-heading">Rando's voice</h2>
+  <ion-list inset="true" *ngIf="voice.supported; else noVoice">
+    <ion-item>
+      <ion-select
+        label="Voice"
+        placeholder="Browser default"
+        interface="action-sheet"
+        [value]="voice.selectedVoiceURI"
+        (ionChange)="onVoiceChange($event.detail.value)"
+      >
+        <ion-select-option value="">Browser default</ion-select-option>
+        <ion-select-option *ngFor="let v of sortedVoices" [value]="v.voiceURI">
+          {{ v.name }} ({{ v.lang }})
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-range
+        label="Pitch"
+        [min]="0.5"
+        [max]="2"
+        [step]="0.05"
+        [value]="voicePitch"
+        (ionChange)="onPitchChange($event.detail.value)"
+      >
+        <ion-label slot="start">Low</ion-label>
+        <ion-label slot="end">High</ion-label>
+      </ion-range>
+    </ion-item>
+
+    <ion-item>
+      <ion-range
+        label="Speed"
+        [min]="0.5"
+        [max]="2"
+        [step]="0.05"
+        [value]="voiceRate"
+        (ionChange)="onRateChange($event.detail.value)"
+      >
+        <ion-label slot="start">Slow</ion-label>
+        <ion-label slot="end">Fast</ion-label>
+      </ion-range>
+    </ion-item>
+
+    <ion-item button (click)="testVoice()">
+      <ion-label color="primary">Test voice</ion-label>
+    </ion-item>
+  </ion-list>
+  <ng-template #noVoice>
+    <p class="ion-padding-horizontal">
+      This browser doesn't support speech synthesis, so Rando will show silent notifications only.
+    </p>
+  </ng-template>
+
   <div class="ion-padding-top">
     <h2>How background alerts work here</h2>
     <p>
