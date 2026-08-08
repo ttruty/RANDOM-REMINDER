@@ -19,9 +19,9 @@ export class SettingsPage {
   }
 
   get sortedVoices(): SpeechSynthesisVoice[] {
-    return [...this.voice.voices$.value].sort(
-      (a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name)
-    );
+    return this.voice.voices$.value
+      .filter((v) => v.lang.toLowerCase().startsWith('en'))
+      .sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
   }
 
   onVoiceChange(uri: string | null | undefined): void {

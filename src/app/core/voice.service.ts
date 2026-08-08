@@ -83,8 +83,21 @@ export class VoiceService {
     utterance.pitch = this.pitch;
     utterance.rate = this.rate;
     const voice = this.selectedVoice();
-    if (voice) utterance.voice = voice;
+    if (voice) {
+      utterance.voice = voice;
+      // Chrome/Chromium silently ignores `voice` and falls back to the
+      // default unless `lang` is also set to match it — this is the actual
+      // fix for "picking a voice doesn't change what's spoken".
+      utterance.lang = voice.lang;
+    }
     return utterance;
+  }
+
+  private speakNow(utterance: SpeechSynthesisUtterance): void {
+    speechSynthesis.cancel();
+    // Some Chromium versions silently drop the next utterance if speak() is
+    // called synchronously right after cancel() — a tiny delay avoids that.
+    setTimeout(() => speechSynthesis.speak(utterance), 50);
   }
 
   /** Speaks an original intro catchphrase followed by the reminder text. Foreground-only. */
@@ -92,14 +105,12 @@ export class VoiceService {
     if (!this.supported) return;
     const intro = INTROS[Math.floor(Math.random() * INTROS.length)];
     const text = [intro, title, body].filter((part) => part && part.trim().length > 0).join('. ');
-    speechSynthesis.cancel();
-    speechSynthesis.speak(this.buildUtterance(text));
+    this.speakNow(this.buildUtterance(text));
   }
 
   /** Plays a short sample with the current voice/pitch/rate settings. */
   testVoice(): void {
     if (!this.supported) return;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(this.buildUtterance("Can do! This is what Rando sounds like."));
+    this.speakNow(this.buildUtterance("Can do! This is what Rando sounds like."));
   }
 }
