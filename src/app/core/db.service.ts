@@ -114,6 +114,43 @@ export class DbService {
     });
   }
 
+  /** Adds/overwrites the given occurrences without touching any others (additive fill of new cycles). */
+  async addOccurrences(occurrences: Occurrence[]): Promise<void> {
+    if (occurrences.length === 0) return;
+    const db = await this.db();
+    await tx(db, [STORE_OCCURRENCES], 'readwrite', (s) => {
+      for (const occ of occurrences) s[STORE_OCCURRENCES].put(occ);
+    });
+  }
+
+  async deleteOccurrence(id: string): Promise<void> {
+    const db = await this.db();
+    await tx(db, [STORE_OCCURRENCES], 'readwrite', (s) => s[STORE_OCCURRENCES].delete(id));
+  }
+
+  async getOccurrencesInRange(startMs: number, endMs: number): Promise<Occurrence[]> {
+    const db = await this.db();
+    return tx(db, [STORE_OCCURRENCES], 'readonly', (s) =>
+      s[STORE_OCCURRENCES].index('time').getAll(IDBKeyRange.bound(startMs, endMs))
+    );
+  }
+
+  /** Housekeeping: drops occurrences older than the cutoff (fired or not) — no history feature needs them. */
+  async deleteOccurrencesBefore(cutoffMs: number): Promise<void> {
+    const db = await this.db();
+    await tx(db, [STORE_OCCURRENCES], 'readwrite', (s) => {
+      const idx = s[STORE_OCCURRENCES].index('time');
+      const req = idx.openCursor(IDBKeyRange.upperBound(cutoffMs, true));
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        }
+      };
+    });
+  }
+
   async markOccurrenceFired(id: string, messageId: string): Promise<void> {
     const db = await this.db();
     await tx(db, [STORE_OCCURRENCES], 'readwrite', (s) => {

@@ -48,6 +48,10 @@ export class HomePage implements OnInit {
     this.router.navigate(['/settings']);
   }
 
+  openCalendar(): void {
+    this.router.navigate(['/calendar']);
+  }
+
   async toggleActive(vm: ProfileViewModel, event: CustomEvent): Promise<void> {
     const active = (event as CustomEvent<{ checked: boolean }>).detail.checked;
     const updated: ReminderProfile = { ...vm.profile, active };

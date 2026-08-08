@@ -1,0 +1,73 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Upcoming Alerts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="month-nav">
+    <ion-button fill="clear" [disabled]="!canGoToPrevMonth" (click)="prevMonth()">
+      <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+    </ion-button>
+    <span class="month-label">{{ monthLabel }}</span>
+    <ion-button fill="clear" (click)="nextMonth()">
+      <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+    </ion-button>
+  </div>
+
+  <div class="grid">
+    <div class="weekday-row">
+      <span *ngFor="let w of weekdayNames">{{ w }}</span>
+    </div>
+    <div class="week-row" *ngFor="let week of weeks">
+      <button
+        type="button"
+        class="day-cell"
+        *ngFor="let cell of week"
+        [class.outside-month]="!cell.inCurrentMonth"
+        [class.is-today]="cell.isToday"
+        [class.is-selected]="cell.date.getTime() === selectedDate.getTime()"
+        [class.is-past]="cell.isPast"
+        [class.unknown]="!cell.withinHorizon"
+        (click)="selectDay(cell)"
+      >
+        <span class="day-number">{{ cell.date.getDate() }}</span>
+        <span class="dot" *ngIf="cell.alertCount > 0">{{ cell.alertCount > 9 ? '9+' : cell.alertCount }}</span>
+        <span class="unknown-mark" *ngIf="cell.alertCount === 0 && !cell.withinHorizon && !cell.isPast">?</span>
+      </button>
+    </div>
+  </div>
+
+  <p class="horizon-note">
+    Alerts are only scheduled up to {{ lookaheadDays }} days ahead — days marked <strong>?</strong> haven't been
+    determined yet and will fill in as they get closer.
+  </p>
+
+  <div class="agenda">
+    <h2>{{ selectedDateLabel }}</h2>
+
+    <p class="agenda-empty" *ngIf="selectedDayAlerts.length === 0 && selectedDateWithinHorizon">
+      No alerts scheduled.
+    </p>
+    <p class="agenda-empty" *ngIf="selectedDayAlerts.length === 0 && !selectedDateWithinHorizon">
+      Not determined yet — check back closer to this date.
+    </p>
+
+    <ion-list lines="full" *ngIf="selectedDayAlerts.length > 0">
+      <ion-item *ngFor="let a of selectedDayAlerts" button (click)="openProfile(a.profile.id)">
+        <ion-label>
+          <h3>{{ formatTime(a.occurrence.time) }} — {{ a.profile.name }}</h3>
+          <p *ngIf="a.message">{{ a.message.title }}<span *ngIf="a.message.body"> — {{ a.message.body }}</span></p>
+        </ion-label>
+        <ion-button slot="end" fill="clear" color="danger" (click)="skip(a, $event)">
+          <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

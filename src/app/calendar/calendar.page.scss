@@ -1,0 +1,120 @@
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0;
+
+  .month-label {
+    font-size: 1.05em;
+    font-weight: 600;
+    min-width: 160px;
+    text-align: center;
+  }
+}
+
+.grid {
+  padding: 0 8px;
+}
+
+.weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75em;
+  color: var(--ion-color-medium);
+  margin-bottom: 4px;
+}
+
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.day-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ion-text-color);
+  font: inherit;
+  padding: 2px;
+
+  &.outside-month {
+    color: var(--ion-color-medium);
+    opacity: 0.45;
+  }
+
+  &.is-past {
+    opacity: 0.35;
+  }
+
+  &.is-today .day-number {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  &.is-selected {
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+  }
+
+  .day-number {
+    font-size: 0.9em;
+  }
+
+  .dot {
+    margin-top: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 8px;
+    background: var(--ion-color-secondary);
+    color: var(--ion-color-secondary-contrast);
+    font-size: 0.62em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &.is-selected .dot {
+    background: var(--ion-color-secondary-contrast);
+    color: var(--ion-color-secondary);
+  }
+
+  .unknown-mark {
+    margin-top: 2px;
+    font-size: 0.7em;
+    color: var(--ion-color-medium);
+  }
+}
+
+.horizon-note {
+  padding: 0 16px;
+  font-size: 0.78em;
+  color: var(--ion-color-medium);
+  line-height: 1.4;
+}
+
+.agenda {
+  margin-top: 8px;
+
+  h2 {
+    padding: 0 16px;
+    font-size: 1.05em;
+    font-weight: 600;
+  }
+
+  .agenda-empty {
+    padding: 0 16px;
+    color: var(--ion-color-medium);
+  }
+}

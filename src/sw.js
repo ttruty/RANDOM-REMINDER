@@ -89,21 +89,13 @@ function getOccurrencesForProfile(db, profileId) {
   });
 }
 
-function replaceOccurrencesForProfile(db, profileId, occurrences) {
+/** Adds/overwrites the given occurrences without touching any others (additive fill of new cycles). */
+function addOccurrences(db, occurrences) {
   return new Promise((resolve, reject) => {
+    if (occurrences.length === 0) return resolve();
     const t = db.transaction([STORE_OCCURRENCES], 'readwrite');
     const store = t.objectStore(STORE_OCCURRENCES);
-    const idx = store.index('profileId');
-    const cursorReq = idx.openCursor(IDBKeyRange.only(profileId));
-    cursorReq.onsuccess = () => {
-      const cursor = cursorReq.result;
-      if (cursor) {
-        cursor.delete();
-        cursor.continue();
-      } else {
-        occurrences.forEach((o) => store.put(o));
-      }
-    };
+    occurrences.forEach((o) => store.put(o));
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
   });
@@ -219,23 +211,32 @@ function generateOccurrenceTimes(rule, cycleStart, cycleEnd) {
   return picked;
 }
 
-async function ensureFreshOccurrences(db, profile, now) {
+/**
+ * Ensures the *current* cycle has occurrences, without touching any other
+ * cycles — the app (when open) is responsible for precomputing the full
+ * rolling 14-day window used by the calendar view; this only needs enough
+ * for due-checking to work correctly in the background.
+ */
+async function ensureCurrentCycleOccurrences(db, profile, now) {
   const existing = await getOccurrencesForProfile(db, profile.id);
   const key = cycleKeyFor(profile.rule.periodType, now);
-  if (existing.length === 0 || existing[0].cycleKey !== key) {
-    const { start, end } = cycleBounds(profile.rule.periodType, now);
-    const times = generateOccurrenceTimes(profile.rule, start, end);
-    const occurrences = times.map((t) => ({
+  if (existing.some((o) => o.cycleKey === key)) return existing;
+
+  const { start, end } = cycleBounds(profile.rule.periodType, now);
+  const times = generateOccurrenceTimes(profile.rule, start, end);
+  const fresh = times.map((t) => {
+    const msg = profile.messages.length > 0 ? profile.messages[Math.floor(Math.random() * profile.messages.length)] : null;
+    return {
       id: `${profile.id}:${t}`,
       profileId: profile.id,
       cycleKey: key,
       time: t,
       fired: false,
-    }));
-    await replaceOccurrencesForProfile(db, profile.id, occurrences);
-    return occurrences;
-  }
-  return existing;
+      messageId: msg ? msg.id : undefined,
+    };
+  });
+  await addOccurrences(db, fresh);
+  return existing.concat(fresh);
 }
 
 // ---------- fire due reminders ----------
@@ -246,10 +247,12 @@ async function checkAndFireDue() {
   const now = Date.now();
   for (const profile of profiles) {
     if (!profile.active || !profile.messages || profile.messages.length === 0) continue;
-    const occurrences = await ensureFreshOccurrences(db, profile, new Date(now));
+    const occurrences = await ensureCurrentCycleOccurrences(db, profile, new Date(now));
     const due = occurrences.filter((o) => !o.fired && o.time <= now);
     for (const occ of due) {
-      const msg = profile.messages[Math.floor(Math.random() * profile.messages.length)];
+      const msg =
+        profile.messages.find((m) => m.id === occ.messageId) ||
+        profile.messages[Math.floor(Math.random() * profile.messages.length)];
       try {
         await self.registration.showNotification(msg.title || profile.name, {
           body: msg.body || '',

@@ -18,10 +18,18 @@ Each **reminder profile** has:
 - A **rule**: how many alerts per day/week/month, which days of the week are eligible,
   one or more time-of-day windows, and a minimum gap between alerts.
 
-On each app load (and on every background wake-up), the app computes a fresh
-batch of random timestamps for the *current* cycle (today / this week / this
-month) that satisfy the rule, stores them in IndexedDB, and fires a
-notification for any that become due.
+On each app load (and on every background wake-up), the app keeps a **rolling
+14-day window** of precomputed occurrences per profile topped up in
+IndexedDB — each with a message pre-assigned at generation time — and fires
+a notification for any that become due. The Calendar page (tap the calendar
+icon on the home screen) shows this window as a month grid: days with alerts
+get a badge, days beyond the 14-day horizon are marked "?" since they haven't
+been randomized yet, and tapping a day lists its alerts with a way to skip
+a single one without touching the recurring rule. Editing a profile's rule
+regenerates its entire window from scratch (so the calendar reflects the
+new rule immediately); the background service worker only ever *adds*
+missing days to the window, so a background wake-up can never wipe out
+the calendar the app already computed.
 
 ## Important: background-alert limitations (read this)
 
@@ -92,7 +100,8 @@ Safari for home-screen web apps (see limitations above).
 - `src/app/core/models.ts` — data model (profiles, rules, occurrences)
 - `src/app/core/scheduler.ts` — pure random-occurrence-generation engine
 - `src/app/core/db.service.ts` — IndexedDB storage
-- `src/app/core/reminder-store.service.ts` — profile CRUD + occurrence refresh
+- `src/app/core/reminder-store.service.ts` — profile CRUD + rolling occurrence window
+- `src/app/calendar` — month-grid calendar of upcoming alerts, with per-alert skip
 - `src/app/core/notification.service.ts` — permissions, SW registration, foreground polling
 - `src/app/core/voice.service.ts` — original catchphrases + text-to-speech via the Web Speech API;
   voice/pitch/speed are user-selectable in Settings and persisted to `localStorage`

@@ -45,6 +45,29 @@ export function cycleKeyFor(periodType: ScheduleRule['periodType'], date: Date):
   return `${periodType}:${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
 }
 
+/**
+ * All consecutive cycles that overlap [from, to] — e.g. for a weekly rule and
+ * a 14-day window, this returns the 2-3 week-cycles spanning that range. Used
+ * to precompute a rolling window of occurrences (for the calendar view) well
+ * beyond just the "current" cycle.
+ */
+export function cyclesOverlapping(
+  periodType: ScheduleRule['periodType'],
+  from: Date,
+  to: Date
+): { start: Date; end: Date }[] {
+  const cycles: { start: Date; end: Date }[] = [];
+  let cursor = cycleBounds(periodType, from).start;
+  let guard = 0;
+  while (cursor.getTime() <= to.getTime() && guard < 400) {
+    const bounds = cycleBounds(periodType, cursor);
+    cycles.push(bounds);
+    cursor = new Date(bounds.end.getTime() + 1);
+    guard++;
+  }
+  return cycles;
+}
+
 function parseHHMM(value: string): number {
   const [h, m] = value.split(':').map((v) => parseInt(v, 10));
   return (h || 0) * 60 + (m || 0);
