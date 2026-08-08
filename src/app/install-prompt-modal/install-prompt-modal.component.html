@@ -1,0 +1,16 @@
+<ion-content class="ion-padding install-modal">
+  <div class="install-modal__body">
+    <img src="assets/icon/icon.svg" alt="" class="install-modal__icon" />
+    <h1>Install Random Reminders?</h1>
+    <p>
+      Add it to your home screen for a real app-like experience — and much more reliable
+      background reminders than running it in a browser tab.
+    </p>
+    <ion-button expand="block" [disabled]="installing" (click)="install()">
+      {{ installing ? 'Opening install prompt…' : 'Install app' }}
+    </ion-button>
+    <ion-button expand="block" fill="clear" [disabled]="installing" (click)="notNow()">
+      Not now
+    </ion-button>
+  </div>
+</ion-content>

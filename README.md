@@ -67,8 +67,12 @@ static hosting (no server-side rewrites) doesn't 404 on deep links.
 
 ## Installing on your phone
 
-**Android (Chrome or Edge):** open the GitHub Pages URL → menu (⋮) → **"Add
-to Home screen" / "Install app"**. Then open the installed app once and tap
+**Android (Chrome or Edge):** the app listens for Chrome's `beforeinstallprompt`
+event and, when the browser reports the site is installable, proactively shows
+an in-app modal ("Install Random Reminders?") a moment after launch — no need
+to dig through the browser menu. Dismissing it ("Not now") won't ask again for
+7 days; you can still install anytime via the browser menu → **"Add to Home
+screen" / "Install app"**. After installing, open the app once and tap
 **Enable notifications** — this also attempts to register background sync.
 Using the app a few times increases the odds Chrome grants it steady
 background wake-ups.
@@ -84,6 +88,8 @@ Safari for home-screen web apps (see limitations above).
 - `src/app/core/db.service.ts` — IndexedDB storage
 - `src/app/core/reminder-store.service.ts` — profile CRUD + occurrence refresh
 - `src/app/core/notification.service.ts` — permissions, SW registration, foreground polling
+- `src/app/core/install-prompt.service.ts` — captures Chrome's `beforeinstallprompt` event
+- `src/app/install-prompt-modal` — the "Install as app?" modal shown on Android
 - `src/sw.js` — service worker; **mirrors** the scheduler/DB logic in plain JS
   (service workers can't import compiled Angular/TS code) — keep both in sync
   if you touch the data model or recurrence math
