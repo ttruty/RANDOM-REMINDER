@@ -1,9 +1,15 @@
-# Random Reminders
+# Rando-Can-do
 
 An Ionic + Angular Progressive Web App that fires custom alerts at randomized
 times you control — "3 times a day between 7am–9pm", "3 times a week",
 "17 random times this month", or any custom mix of days/time-windows/counts.
 Hosted for free on GitHub Pages, installable to an Android or iOS home screen.
+
+Rando is a little green helper mascot who pops in with your reminders and
+(in the foreground) says them out loud in an over-the-top, eager-to-help
+voice — original character, original catchphrases ("Can do!"), spoken via
+the browser's built-in text-to-speech. No copyrighted show audio, art, or
+dialogue is used anywhere in this project.
 
 ## How scheduling works
 
@@ -69,7 +75,7 @@ static hosting (no server-side rewrites) doesn't 404 on deep links.
 
 **Android (Chrome or Edge):** the app listens for Chrome's `beforeinstallprompt`
 event and, when the browser reports the site is installable, proactively shows
-an in-app modal ("Install Random Reminders?") a moment after launch — no need
+an in-app modal ("Install Rando-Can-do?") a moment after launch — no need
 to dig through the browser menu. Dismissing it ("Not now") won't ask again for
 7 days; you can still install anytime via the browser menu → **"Add to Home
 screen" / "Install app"**. After installing, open the app once and tap
@@ -88,6 +94,7 @@ Safari for home-screen web apps (see limitations above).
 - `src/app/core/db.service.ts` — IndexedDB storage
 - `src/app/core/reminder-store.service.ts` — profile CRUD + occurrence refresh
 - `src/app/core/notification.service.ts` — permissions, SW registration, foreground polling
+- `src/app/core/voice.service.ts` — original catchphrases + text-to-speech via the Web Speech API
 - `src/app/core/install-prompt.service.ts` — captures Chrome's `beforeinstallprompt` event
 - `src/app/install-prompt-modal` — the "Install as app?" modal shown on Android
 - `src/sw.js` — service worker; **mirrors** the scheduler/DB logic in plain JS
@@ -95,8 +102,10 @@ Safari for home-screen web apps (see limitations above).
   if you touch the data model or recurrence math
 - `src/app/home`, `src/app/profile-editor`, `src/app/settings` — UI pages
 
-## Customizing icons
+## Customizing icons & mascot
 
-`src/assets/icon/icon.svg` is a placeholder bell icon used for the app icon,
-notification icon, and PWA manifest. Swap it for your own before a real
-deployment (`src/manifest.webmanifest` references it).
+`src/assets/icon/icon.svg` (app icon / notification icon / PWA manifest icon)
+and `src/assets/mascot/rando-hero.svg` (empty state + install modal
+illustration) are original flat-vector art — swap them for your own anytime.
+Rando's voice lines live in `src/app/core/voice.service.ts` (`INTROS` array)
+if you want to change the catchphrases.

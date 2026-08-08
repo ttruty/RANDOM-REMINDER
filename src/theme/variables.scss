@@ -1,2 +1,37 @@
+// Rando-Can-do theme — "portal lab" palette.
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+:root {
+  /* portal green — primary */
+  --ion-color-primary: #4cd964;
+  --ion-color-primary-rgb: 76, 217, 100;
+  --ion-color-primary-contrast: #002b0d;
+  --ion-color-primary-contrast-rgb: 0, 43, 13;
+  --ion-color-primary-shade: #43bf58;
+  --ion-color-primary-tint: #5edd74;
+
+  /* lab blue — secondary */
+  --ion-color-secondary: #00b4d8;
+  --ion-color-secondary-rgb: 0, 180, 216;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #009fbe;
+  --ion-color-secondary-tint: #1abcdc;
+
+  /* portal purple — tertiary */
+  --ion-color-tertiary: #8c52ff;
+  --ion-color-tertiary-rgb: 140, 82, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #7b48e0;
+  --ion-color-tertiary-tint: #9763ff;
+
+  /* warning stays close to default so it still reads as "caution" */
+  --ion-color-warning: #ffd23f;
+  --ion-color-warning-rgb: 255, 210, 63;
+  --ion-color-warning-contrast: #2b2200;
+  --ion-color-warning-contrast-rgb: 43, 34, 0;
+  --ion-color-warning-shade: #e0b937;
+  --ion-color-warning-tint: #ffd752;
+}

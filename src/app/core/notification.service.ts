@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ReminderStoreService } from './reminder-store.service';
+import { VoiceService } from './voice.service';
 
 const FOREGROUND_CHECK_INTERVAL_MS = 60 * 1000; // 1 min while app is open
 const PERIODIC_SYNC_TAG = 'check-reminders';
@@ -13,7 +14,7 @@ export class NotificationService {
   backgroundCapability: BackgroundCapability = 'unknown';
   private foregroundTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private store: ReminderStoreService) {}
+  constructor(private store: ReminderStoreService, private voice: VoiceService) {}
 
   get permission(): NotificationPermission | 'unsupported' {
     if (!('Notification' in window)) return 'unsupported';
@@ -69,6 +70,11 @@ export class NotificationService {
     this.foregroundTimer = setInterval(tick, FOREGROUND_CHECK_INTERVAL_MS);
   }
 
+  /**
+   * Shows a notification (and, since this only ever runs while the page/tab
+   * is alive, has Rando speak it aloud too — speechSynthesis isn't available
+   * to the service worker, so background-fired reminders stay silent).
+   */
   show(title: string, body: string): void {
     if (this.permission !== 'granted') return;
     const options: NotificationOptions = { body, icon: 'assets/icon/icon.svg', badge: 'assets/icon/icon.svg' };
@@ -77,6 +83,7 @@ export class NotificationService {
     } else {
       new Notification(title, options);
     }
+    this.voice.speak(title, body);
   }
 
   async sendTestNotification(): Promise<void> {

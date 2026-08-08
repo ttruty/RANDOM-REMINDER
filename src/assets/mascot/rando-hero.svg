@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460">
+  <!-- portal swirl backdrop -->
+  <ellipse cx="200" cy="230" rx="175" ry="175" fill="none" stroke="#00b4d8" stroke-width="14" opacity="0.3" />
+  <ellipse cx="200" cy="230" rx="132" ry="132" fill="none" stroke="#8c52ff" stroke-width="9" opacity="0.22" />
+
+  <!-- legs -->
+  <rect x="163" y="368" width="17" height="58" rx="8.5" fill="#3fae52" />
+  <rect x="220" y="368" width="17" height="58" rx="8.5" fill="#3fae52" />
+  <ellipse cx="171" cy="430" rx="23" ry="10" fill="#2c8a3b" />
+  <ellipse cx="228" cy="430" rx="23" ry="10" fill="#2c8a3b" />
+
+  <!-- arms (one waving) -->
+  <path d="M138 262 C86 250 64 196 86 160" stroke="#4cd964" stroke-width="19" fill="none" stroke-linecap="round" />
+  <circle cx="84" cy="153" r="18" fill="#4cd964" />
+  <path d="M262 262 C314 254 332 226 322 198" stroke="#4cd964" stroke-width="19" fill="none" stroke-linecap="round" />
+  <circle cx="326" cy="192" r="18" fill="#4cd964" />
+
+  <!-- body -->
+  <ellipse cx="200" cy="262" rx="122" ry="142" fill="#4cd964" />
+  <ellipse cx="200" cy="262" rx="122" ry="142" fill="url(#shine)" opacity="0.25" />
+
+  <!-- eyes -->
+  <ellipse cx="159" cy="230" rx="29" ry="33" fill="#ffffff" />
+  <ellipse cx="241" cy="230" rx="29" ry="33" fill="#ffffff" />
+  <circle cx="161" cy="241" r="13" fill="#08210f" />
+  <circle cx="243" cy="241" r="13" fill="#08210f" />
+  <circle cx="157" cy="236" r="4" fill="#ffffff" />
+  <circle cx="239" cy="236" r="4" fill="#ffffff" />
+
+  <!-- big grin -->
+  <path d="M152 300 Q200 348 248 300" stroke="#08210f" stroke-width="10" fill="none" stroke-linecap="round" />
+
+  <!-- cheeks -->
+  <ellipse cx="130" cy="278" rx="14" ry="9" fill="#2c8a3b" opacity="0.35" />
+  <ellipse cx="270" cy="278" rx="14" ry="9" fill="#2c8a3b" opacity="0.35" />
+
+  <defs>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+</svg>

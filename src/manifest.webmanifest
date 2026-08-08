@@ -1,13 +1,13 @@
 {
-  "name": "Random Reminders",
-  "short_name": "Reminders",
-  "description": "Random reminders and alerts throughout the day, week, or month.",
+  "name": "Rando-Can-do",
+  "short_name": "Rando",
+  "description": "Rando pops in with random reminders and alerts throughout your day, week, or month. Can do!",
   "start_url": ".",
   "scope": ".",
   "id": ".",
   "display": "standalone",
-  "background_color": "#101223",
-  "theme_color": "#5260ff",
+  "background_color": "#12141f",
+  "theme_color": "#4cd964",
   "orientation": "portrait",
   "icons": [
     {
