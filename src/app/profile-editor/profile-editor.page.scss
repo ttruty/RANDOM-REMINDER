@@ -1,0 +1,40 @@
+.section-title {
+  margin: 24px 0 4px;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.section-hint {
+  margin: 0 0 8px;
+  color: var(--ion-color-medium);
+  font-size: 0.85em;
+}
+
+.day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 16px 8px;
+}
+
+.time-window {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input[type='time'] {
+    font-size: 1em;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: var(--ion-text-color);
+  }
+}
+
+.message-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 4px;
+  padding: 8px 0;
+}

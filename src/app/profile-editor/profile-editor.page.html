@@ -1,0 +1,128 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ isNew ? 'New Reminder' : 'Edit Reminder' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [disabled]="!canSave" (click)="save()" [strong]="true">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="profile">
+  <ion-item>
+    <ion-label position="stacked">Name</ion-label>
+    <ion-input [(ngModel)]="profile.name" placeholder="e.g. Drink water" required></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Active</ion-label>
+    <ion-toggle slot="end" [(ngModel)]="profile.active"></ion-toggle>
+  </ion-item>
+
+  <h2 class="section-title">Schedule</h2>
+
+  <ion-item>
+    <ion-label>Repeat</ion-label>
+    <ion-segment [value]="profile.rule.periodType" (ionChange)="setPeriodType($event.detail.value)">
+      <ion-segment-button value="day">
+        <ion-label>Daily</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="week">
+        <ion-label>Weekly</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="month">
+        <ion-label>Monthly</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">
+      Number of alerts per {{ profile.rule.periodType }}
+    </ion-label>
+    <ion-input type="number" min="1" max="200" [(ngModel)]="profile.rule.count"></ion-input>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-label position="stacked">Eligible days</ion-label>
+  </ion-item>
+  <div class="day-chips">
+    <ion-chip
+      *ngFor="let name of dayNames; let i = index"
+      [color]="isDaySelected(i) ? 'primary' : 'medium'"
+      [outline]="!isDaySelected(i)"
+      (click)="toggleDay(i)"
+    >
+      {{ name }}
+    </ion-chip>
+  </div>
+
+  <ion-item lines="none">
+    <ion-label position="stacked">Time window(s)</ion-label>
+  </ion-item>
+  <ion-list lines="none">
+    <ion-item *ngFor="let w of profile.rule.timeWindows; let i = index">
+      <div class="time-window">
+        <input type="time" [(ngModel)]="w.start" [name]="'start' + i" />
+        <span>to</span>
+        <input type="time" [(ngModel)]="w.end" [name]="'end' + i" />
+      </div>
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="danger"
+        [disabled]="profile.rule.timeWindows.length <= 1"
+        (click)="removeTimeWindow(i)"
+      >
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ion-button expand="block" fill="outline" size="small" (click)="addTimeWindow()">
+    <ion-icon slot="start" name="add"></ion-icon>
+    Add time window
+  </ion-button>
+
+  <ion-item class="ion-margin-top">
+    <ion-label position="stacked">Minimum gap between alerts (minutes)</ion-label>
+    <ion-input type="number" min="0" [(ngModel)]="profile.rule.minGapMinutes"></ion-input>
+  </ion-item>
+
+  <h2 class="section-title">Messages</h2>
+  <p class="section-hint">One is picked at random each time this reminder fires.</p>
+
+  <ion-list lines="full">
+    <ion-item *ngFor="let m of profile.messages; let i = index">
+      <div class="message-row">
+        <ion-input placeholder="Title" [(ngModel)]="m.title" [name]="'msgTitle' + i"></ion-input>
+        <ion-textarea placeholder="Body (optional)" [(ngModel)]="m.body" [name]="'msgBody' + i" autoGrow="true"></ion-textarea>
+      </div>
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="danger"
+        [disabled]="profile.messages.length <= 1"
+        (click)="removeMessage(i)"
+      >
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ion-button expand="block" fill="outline" size="small" (click)="addMessage()">
+    <ion-icon slot="start" name="add"></ion-icon>
+    Add message
+  </ion-button>
+
+  <ion-button
+    expand="block"
+    color="danger"
+    fill="clear"
+    class="ion-margin-top"
+    *ngIf="!isNew"
+    (click)="confirmDelete()"
+  >
+    Delete reminder
+  </ion-button>
+</ion-content>

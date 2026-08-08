@@ -1,0 +1,64 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Random Reminders</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openSettings()">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Random Reminders</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-card *ngIf="needsPermission" color="warning" class="permission-card">
+    <ion-card-header>
+      <ion-card-title>Enable notifications</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Random Reminders needs permission to show alerts.
+      <ion-button expand="block" fill="solid" color="dark" (click)="enableNotifications()">
+        Enable notifications
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ng-container *ngIf="viewModels$ | async as vms">
+    <div class="empty-state" *ngIf="vms.length === 0">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <p>No reminders yet.</p>
+      <p class="hint">Tap the + button to create your first random reminder.</p>
+    </div>
+
+    <ion-list *ngIf="vms.length > 0" lines="none">
+      <ion-card *ngFor="let vm of vms; trackBy: trackByProfileId" button (click)="openProfile(vm.profile.id)">
+        <ion-item lines="none">
+          <ion-label>
+            <h2>{{ vm.profile.name }}</h2>
+            <p>{{ ruleSummary(vm.profile) }}</p>
+            <p class="next-alert" [class.inactive]="!vm.profile.active">
+              {{ vm.profile.active ? formatNextAlert(vm.nextAlert) : 'Paused' }}
+            </p>
+          </ion-label>
+          <ion-toggle
+            slot="end"
+            [checked]="vm.profile.active"
+            (click)="$event.stopPropagation()"
+            (ionChange)="toggleActive(vm, $event)"
+          ></ion-toggle>
+        </ion-item>
+      </ion-card>
+    </ion-list>
+  </ng-container>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addProfile()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,36 @@
+.permission-card {
+  margin: 16px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 20vh;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 12px;
+  }
+
+  .hint {
+    font-size: 0.9em;
+  }
+}
+
+ion-card {
+  margin: 12px 16px;
+}
+
+.next-alert {
+  color: var(--ion-color-primary);
+  font-weight: 500;
+
+  &.inactive {
+    color: var(--ion-color-medium);
+    font-weight: 400;
+  }
+}

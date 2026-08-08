@@ -1,0 +1,26 @@
+{
+  "name": "Random Reminders",
+  "short_name": "Reminders",
+  "description": "Random reminders and alerts throughout the day, week, or month.",
+  "start_url": ".",
+  "scope": ".",
+  "id": ".",
+  "display": "standalone",
+  "background_color": "#101223",
+  "theme_color": "#5260ff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/icon/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

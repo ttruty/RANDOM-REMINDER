@@ -1,0 +1,70 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list inset="true">
+    <ion-item>
+      <ion-label>
+        <h2>Notification permission</h2>
+        <p>{{ notifications.permission }}</p>
+      </ion-label>
+      <ion-button slot="end" *ngIf="notifications.permission !== 'granted'" (click)="requestPermission()">
+        Enable
+      </ion-button>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2>Installed as app</h2>
+        <p>{{ isInstalled ? 'Yes — running installed' : 'No — running in browser tab' }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2>Background alert capability</h2>
+        <p>{{ notifications.backgroundCapability }}</p>
+      </ion-label>
+      <ion-button slot="end" fill="clear" (click)="recheckBackground()">Re-check</ion-button>
+    </ion-item>
+
+    <ion-item button (click)="sendTest()">
+      <ion-label color="primary">Send a test notification now</ion-label>
+    </ion-item>
+  </ion-list>
+
+  <div class="ion-padding-top">
+    <h2>How background alerts work here</h2>
+    <p>
+      This app is installed as a Progressive Web App with no backend server — so it relies on the
+      <strong>Periodic Background Sync</strong> API to wake up and check for due reminders while closed.
+      That API is currently supported <strong>only on Chrome/Edge for Android</strong>, and only after
+      you've added this app to your home screen and used it a bit (the browser decides the actual wake-up
+      frequency, so timing while closed is best-effort, not exact).
+    </p>
+    <p *ngIf="!isAndroidChrome">
+      You don't appear to be on Android Chrome/Edge right now — background alerts while the app is fully
+      closed likely won't fire on this browser. Reminders will still work reliably whenever the app is
+      open in a tab or in the foreground.
+    </p>
+    <p *ngIf="isAndroidChrome && !isInstalled">
+      Tip: use the browser menu → <strong>"Add to Home screen" / "Install app"</strong> to install it —
+      background alerts are much more reliable once installed.
+    </p>
+    <h2>For guaranteed exact-time alerts</h2>
+    <p>
+      Browsers intentionally limit background wake-ups for battery/privacy reasons. If you need alerts
+      that fire at a precise time even when the app has been closed for days, that requires either a
+      real push server (Web Push) or a native app build (e.g. via Capacitor) using true OS-level
+      scheduled notifications — outside the scope of this static, no-backend deployment.
+    </p>
+  </div>
+</ion-content>
