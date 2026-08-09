@@ -101,6 +101,15 @@ function addOccurrences(db, occurrences) {
   });
 }
 
+function deleteOccurrence(db, id) {
+  return new Promise((resolve, reject) => {
+    const t = db.transaction([STORE_OCCURRENCES], 'readwrite');
+    t.objectStore(STORE_OCCURRENCES).delete(id);
+    t.oncomplete = () => resolve();
+    t.onerror = () => reject(t.error);
+  });
+}
+
 function markOccurrenceFired(db, id, messageId) {
   return new Promise((resolve, reject) => {
     const t = db.transaction([STORE_OCCURRENCES], 'readwrite');
@@ -218,9 +227,25 @@ function generateOccurrenceTimes(rule, cycleStart, cycleEnd) {
  * for due-checking to work correctly in the background.
  */
 async function ensureCurrentCycleOccurrences(db, profile, now) {
-  const existing = await getOccurrencesForProfile(db, profile.id);
+  let existing = await getOccurrencesForProfile(db, profile.id);
   const key = cycleKeyFor(profile.rule.periodType, now);
-  if (existing.some((o) => o.cycleKey === key)) return existing;
+  const currentCycle = existing.filter((o) => o.cycleKey === key);
+
+  if (currentCycle.length > 0) {
+    // Self-heal: if a race (e.g. with the page's own generation pass) left
+    // this cycle with more occurrences than the rule calls for, trim the
+    // extras — fired ones are kept first, then the earliest unfired ones.
+    if (currentCycle.length > profile.rule.count) {
+      const fired = currentCycle.filter((o) => o.fired);
+      const unfired = currentCycle.filter((o) => !o.fired).sort((a, b) => a.time - b.time);
+      const keepUnfired = Math.max(0, profile.rule.count - fired.length);
+      const toRemove = unfired.slice(keepUnfired);
+      for (const extra of toRemove) await deleteOccurrence(db, extra.id);
+      const removeIds = new Set(toRemove.map((o) => o.id));
+      existing = existing.filter((o) => !removeIds.has(o.id));
+    }
+    return existing;
+  }
 
   const { start, end } = cycleBounds(profile.rule.periodType, now);
   const times = generateOccurrenceTimes(profile.rule, start, end);

@@ -24,6 +24,15 @@ export class ReminderStoreService {
   private readonly viewModelsSubject = new BehaviorSubject<ProfileViewModel[]>([]);
   readonly viewModels$ = this.viewModelsSubject.asObservable();
 
+  // Serializes ensureOccurrencesForWindow calls. Without this, overlapping
+  // callers (e.g. the constructor's own refresh(), a page's ngOnInit, and its
+  // ionViewWillEnter all firing within the same tick on startup) can each read
+  // "this cycle has no occurrences yet" before any of them has written, and
+  // each independently generates+adds its own random batch — doubling (or
+  // worse) the alert count. Chaining every call through this promise ensures
+  // only one read-then-write pass runs at a time.
+  private occurrenceLock: Promise<unknown> = Promise.resolve();
+
   constructor(private db: DbService) {
     this.refresh();
   }
@@ -115,9 +124,42 @@ export class ReminderStoreService {
   }
 
   /** Additively fills in any cycles within the rolling window that don't have occurrences yet. */
-  private async ensureOccurrencesForWindow(profile: ReminderProfile, now: Date = new Date()): Promise<Occurrence[]> {
+  private ensureOccurrencesForWindow(profile: ReminderProfile, now: Date = new Date()): Promise<Occurrence[]> {
+    const run = this.occurrenceLock.then(() => this.doEnsureOccurrencesForWindow(profile, now));
+    // Keep the chain alive even if this pass throws, so later callers aren't stuck forever.
+    this.occurrenceLock = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }
+
+  private async doEnsureOccurrencesForWindow(profile: ReminderProfile, now: Date): Promise<Occurrence[]> {
     const windowEnd = new Date(now.getTime() + LOOKAHEAD_MS);
-    const existing = await this.db.getOccurrencesForProfile(profile.id);
+    let existing = await this.db.getOccurrencesForProfile(profile.id);
+
+    // Self-heal any cycle left with more occurrences than the rule calls for
+    // (e.g. from a past run of the race described above) by trimming extras —
+    // fired ones are kept first, then the earliest unfired ones.
+    const byCycle = new Map<string, Occurrence[]>();
+    for (const o of existing) {
+      const list = byCycle.get(o.cycleKey) ?? [];
+      list.push(o);
+      byCycle.set(o.cycleKey, list);
+    }
+    const removeIds: string[] = [];
+    for (const list of byCycle.values()) {
+      if (list.length <= profile.rule.count) continue;
+      const fired = list.filter((o) => o.fired);
+      const unfired = list.filter((o) => !o.fired).sort((a, b) => a.time - b.time);
+      const keepUnfired = Math.max(0, profile.rule.count - fired.length);
+      for (const extra of unfired.slice(keepUnfired)) removeIds.push(extra.id);
+    }
+    if (removeIds.length > 0) {
+      for (const id of removeIds) await this.db.deleteOccurrence(id);
+      existing = existing.filter((o) => !removeIds.includes(o.id));
+    }
+
     const existingKeys = new Set(existing.map((o) => o.cycleKey));
     const missingCycles = cyclesOverlapping(profile.rule.periodType, now, windowEnd).filter(
       (c) => !existingKeys.has(cycleKeyFor(profile.rule.periodType, c.start))
